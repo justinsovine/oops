@@ -1,7 +1,7 @@
 
 # Oops
 
-**Oops** is a simple bug tracker built with a CakePHP API and Vue 3. Submit, view, and update bugs. No auth, no fluff—just bugs.
+**Oops** is a simple bug tracker built with a CakePHP API and Vue 3. Submit, view, and update bugs. No auth, no fluff, just bugs.
 
 ## Stack
 
