@@ -34,19 +34,18 @@ class CreateBugs extends BaseMigration
             'limit' => 255,
             'null' => false,
         ]);
+        
+        // Removed timestamp column
         $table->addColumn('created_at', 'datetime', [
             'default' => null,
-            'null' => false,
-        ]);
-        $table->addColumn('timestamp', 'string', [
-            'default' => null,
-            'limit' => 255,
             'null' => false,
         ]);
         $table->addColumn('updated_at', 'datetime', [
             'default' => null,
             'null' => false,
         ]);
+        
+        // Add the Timestamp behavior
         $table->create();
     }
 }
