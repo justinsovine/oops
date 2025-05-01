@@ -8,19 +8,26 @@ use Cake\Event\EventInterface;
 
 class BugsController extends AppController
 {
+    // Set JSON as the view class for all actions
+    public function initialize(): void
+    {
+        parent::initialize();
+        $this->viewBuilder()->setClassName('Json');
+    }
+
     /**
      * beforeFilter() - Set up CORS and allow necessary HTTP methods.
      *
      * @param EventInterface $event
-     * @return void
+     * @return void|\Cake\Http\Response
      */
     public function beforeFilter(EventInterface $event)
     {
         parent::beforeFilter($event);
 
-        // Allow CORS for API (adjust the origin as needed for development or production)
+        // Allow CORS for API
         $this->response = $this->response->cors($this->request)
-            ->allowOrigin(['http://localhost:5173']) // Vue dev server or adjust for production
+            ->allowOrigin(['http://localhost:5173']) // Vue dev server
             ->allowMethods(['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'])
             ->allowHeaders(['Content-Type', 'Accept'])
             ->allowCredentials()
@@ -35,7 +42,7 @@ class BugsController extends AppController
     }
 
     /**
-     * index() - Return all bugs ordered by creation date, serialized as JSON.
+     * index() - Return all bugs ordered by creation date, wrapped in API response format.
      *
      * @return \Cake\Http\Response|null
      */
@@ -46,10 +53,14 @@ class BugsController extends AppController
             ->order(['created_at' => 'DESC'])
             ->all();
 
-        // Disable view rendering and serialize the 'bugs' array into JSON
-        $this->viewBuilder()->setClassName('Json');  // Tell Cake to return JSON
-        $this->set('bugs', $bugs);
-        $this->viewBuilder()->setOption('serialize', ['bugs']);
+        // Set structured API response
+        $this->set([
+            'data' => $bugs,
+            'message' => 'Bug list retrieved successfully',
+            'status' => 'success',
+        ]);
+
+        $this->viewBuilder()->setOption('serialize', ['data', 'message', 'status']);
     }
 
     /**
@@ -60,13 +71,24 @@ class BugsController extends AppController
      */
     public function view($id)
     {
-        // Fetch the bug by ID
-        $bug = $this->Bugs->get($id);
+        try {
+            $bug = $this->Bugs->get($id);
 
-        // Disable view rendering and serialize the 'bug' entity into JSON
-        $this->viewBuilder()->setClassName('Json');  // Tell Cake to return JSON
-        $this->set('bug', $bug);
-        $this->viewBuilder()->setOption('serialize', ['bug']);
+            $this->set([
+                'data' => $bug,
+                'message' => 'Bug retrieved successfully',
+                'status' => 'success',
+            ]);
+        } catch (\Cake\Datasource\Exception\RecordNotFoundException $e) {
+            $this->response = $this->response->withStatus(404);
+            $this->set([
+                'data' => null,
+                'message' => 'Bug not found',
+                'status' => 'error',
+            ]);
+        }
+
+        $this->viewBuilder()->setOption('serialize', ['data', 'message', 'status']);
     }
 
     /**
@@ -85,17 +107,22 @@ class BugsController extends AppController
 
             // Save the bug, and return the response accordingly
             if ($this->Bugs->save($bug)) {
-                // Return the saved bug entity as JSON
-                $this->viewBuilder()->setClassName('Json');
-                $this->set('bug', $bug);
-                $this->viewBuilder()->setOption('serialize', ['bug']);
+                $this->set([
+                    'data' => $bug,
+                    'message' => 'Bug created successfully',
+                    'status' => 'success',
+                ]);
             } else {
-                // Handle validation errors and return them
                 $this->response = $this->response->withStatus(422);
-                $this->viewBuilder()->setClassName('Json');
-                $this->set('errors', $bug->getErrors());
-                $this->viewBuilder()->setOption('serialize', ['errors']);
+                $this->set([
+                    'data' => null,
+                    'message' => 'Failed to create bug',
+                    'status' => 'error',
+                    'errors' => $bug->getErrors(),
+                ]);
             }
+            
+            $this->viewBuilder()->setOption('serialize', ['data', 'message', 'status', 'errors']);
         }
     }
 
@@ -107,25 +134,41 @@ class BugsController extends AppController
      */
     public function edit($id)
     {
-        // Fetch the bug by ID
-        $bug = $this->Bugs->get($id);
+        try {
+            // Fetch the bug by ID
+            $bug = $this->Bugs->get($id);
 
-        if ($this->request->is(['patch', 'put'])) {
-            // Patch the incoming data to the bug entity
-            $bug = $this->Bugs->patchEntity($bug, $this->request->getData());
+            if ($this->request->is(['patch', 'put'])) {
+                // Patch the incoming data to the bug entity
+                $bug = $this->Bugs->patchEntity($bug, $this->request->getData());
 
-            if ($this->Bugs->save($bug)) {
-                // Return the updated bug as JSON
-                $this->viewBuilder()->setClassName('Json');
-                $this->set('bug', $bug);
-                $this->viewBuilder()->setOption('serialize', ['bug']);
-            } else {
-                // Return validation errors if save failed
-                $this->response = $this->response->withStatus(422);
-                $this->viewBuilder()->setClassName('Json');
-                $this->set('errors', $bug->getErrors());
-                $this->viewBuilder()->setOption('serialize', ['errors']);
+                if ($this->Bugs->save($bug)) {
+                    $this->set([
+                        'data' => $bug,
+                        'message' => 'Bug updated successfully',
+                        'status' => 'success',
+                    ]);
+                } else {
+                    $this->response = $this->response->withStatus(422);
+                    $this->set([
+                        'data' => null,
+                        'message' => 'Failed to update bug',
+                        'status' => 'error',
+                        'errors' => $bug->getErrors(),
+                    ]);
+                }
+                
+                $this->viewBuilder()->setOption('serialize', ['data', 'message', 'status', 'errors']);
             }
+        } catch (\Cake\Datasource\Exception\RecordNotFoundException $e) {
+            $this->response = $this->response->withStatus(404);
+            $this->set([
+                'data' => null,
+                'message' => 'Bug not found',
+                'status' => 'error',
+            ]);
+            
+            $this->viewBuilder()->setOption('serialize', ['data', 'message', 'status']);
         }
     }
 
@@ -140,17 +183,37 @@ class BugsController extends AppController
         // Allow only DELETE requests
         $this->request->allowMethod(['delete']);
 
-        // Fetch the bug to delete
-        $bug = $this->Bugs->get($id);
+        try {
+            // Fetch the bug to delete
+            $bug = $this->Bugs->get($id);
 
-        if ($this->Bugs->delete($bug)) {
-            // Return a 204 No Content status if deletion was successful
-            $this->response = $this->response->withStatus(204);
-        } else {
-            // Return a 500 Internal Server Error if deletion failed
-            $this->response = $this->response->withStatus(500);
+            if ($this->Bugs->delete($bug)) {
+                // Return success message
+                $this->set([
+                    'data' => null,
+                    'message' => 'Bug deleted successfully',
+                    'status' => 'success',
+                ]);
+            } else {
+                // Return error if deletion failed
+                $this->response = $this->response->withStatus(500);
+                $this->set([
+                    'data' => null,
+                    'message' => 'Failed to delete bug',
+                    'status' => 'error',
+                ]);
+            }
+            
+            $this->viewBuilder()->setOption('serialize', ['data', 'message', 'status']);
+        } catch (\Cake\Datasource\Exception\RecordNotFoundException $e) {
+            $this->response = $this->response->withStatus(404);
+            $this->set([
+                'data' => null,
+                'message' => 'Bug not found',
+                'status' => 'error',
+            ]);
+            
+            $this->viewBuilder()->setOption('serialize', ['message', 'status', 'data']);
         }
-
-        return $this->response;
     }
 }

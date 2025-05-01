@@ -115,5 +115,5 @@ This project is in-progress. Feedback and improvements welcome!
 If you have suggestions, or just want to talk about minimal app design, open an issue or get in touch!
 
 ## Screenshots
-![Screenshot of API](assets/postman-api-bugs-all.png)
-![Screenshot of API](assets/postman-api-bugs-single.png)
+![Screenshot of API](assets/getall.png)
+![Screenshot of API](assets/getsingle.png)
