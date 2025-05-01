@@ -10,6 +10,7 @@ use Cake\TestSuite\Fixture\TestFixture;
  */
 class BugsFixture extends TestFixture
 {
+    
     /**
      * Init method
      *
@@ -20,15 +21,36 @@ class BugsFixture extends TestFixture
         $this->records = [
             [
                 'id' => 1,
-                'title' => 'Lorem ipsum dolor sit amet',
-                'description' => 'Lorem ipsum dolor sit amet, aliquet feugiat. Convallis morbi fringilla gravida, phasellus feugiat dapibus velit nunc, pulvinar eget sollicitudin venenatis cum nullam, vivamus ut a sed, mollitia lectus. Nulla vestibulum massa neque ut et, id hendrerit sit, feugiat in taciti enim proin nibh, tempor dignissim, rhoncus duis vestibulum nunc mattis convallis.',
-                'priority' => 'Lorem ipsum dolor sit amet',
-                'status' => 'Lorem ipsum dolor sit amet',
+                'title' => 'Submit button not working',
+                'description' => 'When clicking the submit button on the contact form, nothing happens.',
+                'priority' => 'High',
+                'status' => 'New',
+                'submitter' => 'Alice',
                 'created_at' => '2025-05-01 01:06:58',
-                'timestamp' => 'Lorem ipsum dolor sit amet',
                 'updated_at' => '2025-05-01 01:06:58',
             ],
+            [
+                'id' => 2,
+                'title' => 'Page crashes on load',
+                'description' => 'The dashboard page throws a 500 error intermittently.',
+                'priority' => 'Critical',
+                'status' => 'In Progress',
+                'submitter' => 'Bob',
+                'created_at' => '2025-05-01 02:15:00',
+                'updated_at' => '2025-05-01 02:20:00',
+            ],
+            [
+                'id' => 3,
+                'title' => 'Spelling mistake in footer',
+                'description' => 'The word “copyright” is misspelled.',
+                'priority' => 'Low',
+                'status' => 'Resolved',
+                'submitter' => null,
+                'created_at' => '2025-05-01 03:30:00',
+                'updated_at' => '2025-05-01 04:00:00',
+            ],
         ];
+
         parent::init();
     }
 }
