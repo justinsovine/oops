@@ -54,13 +54,16 @@ class BugsController extends AppController
             ->all();
 
         // Set structured API response
+        $this->response = $this->response->withStatus(200);
         $this->set([
             'data' => $bugs,
+            'code' => 200,
             'message' => 'Bug list retrieved successfully',
             'status' => 'success',
+            'error' => null
         ]);
 
-        $this->viewBuilder()->setOption('serialize', ['data', 'message', 'status']);
+        $this->viewBuilder()->setOption('serialize', ['data', 'code', 'message', 'status', 'error']);
     }
 
     /**
@@ -73,22 +76,26 @@ class BugsController extends AppController
     {
         try {
             $bug = $this->Bugs->get($id);
-
+            $this->response = $this->response->withStatus(200);
             $this->set([
                 'data' => $bug,
+                'code' => 200,
                 'message' => 'Bug retrieved successfully',
                 'status' => 'success',
+                'error' => null
             ]);
         } catch (\Cake\Datasource\Exception\RecordNotFoundException $e) {
             $this->response = $this->response->withStatus(404);
             $this->set([
                 'data' => null,
+                'code' => 404,
                 'message' => 'Bug not found',
                 'status' => 'error',
+                'error' => null
             ]);
         }
 
-        $this->viewBuilder()->setOption('serialize', ['data', 'message', 'status']);
+        $this->viewBuilder()->setOption('serialize', ['data', 'code', 'message', 'status', 'error']);
     }
 
     /**
@@ -107,22 +114,26 @@ class BugsController extends AppController
 
             // Save the bug, and return the response accordingly
             if ($this->Bugs->save($bug)) {
+                $this->response = $this->response->withStatus(201);
                 $this->set([
                     'data' => $bug,
+                    'code' => 201,
                     'message' => 'Bug created successfully',
                     'status' => 'success',
+                    'error' => null
                 ]);
             } else {
                 $this->response = $this->response->withStatus(422);
                 $this->set([
                     'data' => null,
+                    'code' => 422,
                     'message' => 'Failed to create bug',
                     'status' => 'error',
-                    'errors' => $bug->getErrors(),
+                    'error' => $bug->getErrors(),
                 ]);
             }
             
-            $this->viewBuilder()->setOption('serialize', ['data', 'message', 'status', 'errors']);
+            $this->viewBuilder()->setOption('serialize', ['data', 'message', 'status', 'error']);
         }
     }
 
@@ -147,6 +158,7 @@ class BugsController extends AppController
                         'data' => $bug,
                         'message' => 'Bug updated successfully',
                         'status' => 'success',
+                        'error' => null,
                     ]);
                 } else {
                     $this->response = $this->response->withStatus(422);
@@ -154,11 +166,11 @@ class BugsController extends AppController
                         'data' => null,
                         'message' => 'Failed to update bug',
                         'status' => 'error',
-                        'errors' => $bug->getErrors(),
+                        'error' => $bug->getErrors(),
                     ]);
                 }
                 
-                $this->viewBuilder()->setOption('serialize', ['data', 'message', 'status', 'errors']);
+                $this->viewBuilder()->setOption('serialize', ['data', 'message', 'status', 'error']);
             }
         } catch (\Cake\Datasource\Exception\RecordNotFoundException $e) {
             $this->response = $this->response->withStatus(404);
@@ -166,9 +178,10 @@ class BugsController extends AppController
                 'data' => null,
                 'message' => 'Bug not found',
                 'status' => 'error',
+                'error' => null,
             ]);
             
-            $this->viewBuilder()->setOption('serialize', ['data', 'message', 'status']);
+            $this->viewBuilder()->setOption('serialize', ['data', 'message', 'status', 'error']);
         }
     }
 

@@ -31,22 +31,50 @@
 ### Endpoints
 
 1. **GET /api/bugs**
-   - **Description**: Retrieve a list of all bugs.
+   - **Description**: Retrieve a list of all bugs ordered by creation date (newest first).
    - **Response**: A list of bugs with their `id`, `title`, `priority`, `status`, and `created_at`.
    - **Example Response**:
      ```json
-     [
-       {
-         "id": 1,
-         "title": "Bug Title",
-         "priority": "High",
-         "status": "New",
-         "created_at": "2025-04-30T12:00:00"
-       }
-     ]
+     {
+       "data": [
+         {
+           "id": 1,
+           "title": "Bug Title",
+           "priority": "High",
+           "status": "New",
+           "created_at": "2025-04-30T12:00:00"
+         }
+       ],
+       "code": 200,
+       "message": "Bug list retrieved successfully",
+       "status": "success",
+       "error": null
+     }
      ```
 
-2. **POST /api/bugs**
+2. **GET /api/bugs/{id}**
+   - **Description**: Retrieve details of a specific bug by `id`.
+   - **Response**: The full details of the requested bug.
+   - **Example Response**:
+     ```json
+     {
+       "data": {
+         "id": 1,
+         "title": "Bug Title",
+         "description": "Detailed bug description",
+         "priority": "High",
+         "status": "In Progress",
+         "submitter": "John Doe",
+         "created_at": "2025-04-30T12:00:00"
+       },
+       "code": 200,
+       "message": "Bug retrieved successfully",
+       "status": "success",
+       "error": null
+     }
+     ```
+
+3. **POST /api/bugs**
    - **Description**: Create a new bug.
    - **Request Body**:
      ```json
@@ -62,47 +90,54 @@
    - **Example Response**:
      ```json
      {
-       "id": 1,
-       "title": "Bug Title",
-       "priority": "Medium",
-       "status": "New",
-       "created_at": "2025-04-30T12:00:00"
-     }
-     ```
-
-3. **GET /api/bugs/{id}**
-   - **Description**: Retrieve details of a specific bug by `id`.
-   - **Response**: The full details of the requested bug.
-   - **Example Response**:
-     ```json
-     {
-       "id": 1,
-       "title": "Bug Title",
-       "description": "Detailed bug description",
-       "priority": "High",
-       "status": "In Progress",
-       "submitter": "John Doe",
-       "created_at": "2025-04-30T12:00:00"
+       "data": {
+         "id": 1,
+         "title": "Bug Title",
+         "priority": "Medium",
+         "status": "New",
+         "created_at": "2025-04-30T12:00:00"
+       },
+       "code": 201,
+       "message": "Bug created successfully",
+       "status": "success",
+       "error": null
      }
      ```
 
 4. **PATCH /api/bugs/{id}**
-   - **Description**: Update the status of a specific bug.
+   - **Description**: Update a specific bug's details.
    - **Request Body**:
      ```json
      {
        "status": "Resolved"
      }
      ```
-   - **Response**: The updated bug with its new status.
+   - **Response**: The updated bug with its new details.
    - **Example Response**:
      ```json
      {
-       "id": 1,
-       "title": "Bug Title",
-       "priority": "High",
-       "status": "Resolved",
-       "created_at": "2025-04-30T12:00:00"
+       "data": {
+         "id": 1,
+         "title": "Bug Title",
+         "priority": "High",
+         "status": "Resolved",
+         "created_at": "2025-04-30T12:00:00"
+       },
+       "message": "Bug updated successfully",
+       "status": "success",
+       "error": null
+     }
+     ```
+
+5. **DELETE /api/bugs/{id}**
+   - **Description**: Delete a specific bug.
+   - **Response**: Success or error message.
+   - **Example Response**:
+     ```json
+     {
+       "data": null,
+       "message": "Bug deleted successfully",
+       "status": "success"
      }
      ```
 
