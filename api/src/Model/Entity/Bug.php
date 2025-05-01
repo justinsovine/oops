@@ -7,12 +7,12 @@ use Cake\ORM\Entity;
 
 class Bug extends Entity
 {
-    protected $_accessible = [
+    protected array $_accessible = [
         'title' => true,
         'description' => true,
         'priority' => true,
         'status' => true,
         'created_at' => false,
-        'updated_at' => false,
+        'updated_at' => false
     ];
 }
